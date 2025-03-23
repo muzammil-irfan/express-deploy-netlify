@@ -8,7 +8,9 @@ import {Metadata, METADATA_FILE} from "./utils/saveMetadata";
 
 const router = Router();
 
-const upload = multer({ dest: "tmp/uploads/" });
+const CLOUDFRONT_URL = "https://d20ajpfoxm2g4r.cloudfront.net";
+
+const upload = multer({ dest: "/tmp/uploads/" });
 
 // Define routes
 router.get("/status", (req, res) => {
@@ -25,7 +27,7 @@ router.get("/videos", async (req: Request, res: Response) => {
     const metadata = JSON.parse(await fs.readFile(METADATA_FILE, "utf-8"));
 
     const s3BaseUrl = `https://${process.env.S3_BUCKET_NAME}.s3.amazonaws.com`;
-    const cloudFrontBaseUrl = "https://d20ajpfoxm2g4r.cloudfront.net";
+    const cloudFrontBaseUrl = CLOUDFRONT_URL;
 
     const updatedMetadata = metadata.map((item: any) => ({
       videoUrl: item.videoUrl.replace(s3BaseUrl, cloudFrontBaseUrl),
