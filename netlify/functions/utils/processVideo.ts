@@ -4,12 +4,13 @@ import fs from "fs-extra";
 import { v4 as uuidv4 } from "uuid";
 
 export const processVideo = async (videoPath: string) => {
-  const uniqueId = uuidv4();
-  const outputDir = path.join("/tmp", `processed-${uniqueId}`);
+  // const uniqueId = uuidv4();
+  const timestamp = Date.now(); // Single timestamp for all files
+  const outputDir = path.join("/tmp", `processed-${timestamp}`);
   await fs.ensureDir(outputDir);
 
-  const hlsPath = path.join(outputDir, "output.m3u8");
-  const thumbnailPath = path.join(outputDir, "thumbnail.jpg");
+  const hlsPath = path.join(outputDir, `${timestamp}.m3u8`);
+  const thumbnailPath = path.join(outputDir, `${timestamp}.webp`);
 
   try {
     // Convert to HLS and generate .ts chunks
@@ -32,14 +33,11 @@ export const processVideo = async (videoPath: string) => {
     // Generate Thumbnail
     await new Promise<void>((resolve, reject) => {
       ffmpeg(videoPath)
-        .screenshots({
-          count: 1,
-          folder: outputDir,
-          filename: "thumbnail.jpg",
-          size: "300x?", // Maintain aspect ratio
-        })
+        .output(thumbnailPath)
+        .outputOptions(["-vf scale=300:-1", "-vframes 1", "-q:v 80"]) // WebP compression
         .on("end", resolve)
-        .on("error", reject);
+        .on("error", reject)
+        .run();
     });
 
     return { hlsPath, thumbnail: thumbnailPath, outputDir };
