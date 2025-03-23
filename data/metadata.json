@@ -1,0 +1,9 @@
+[
+  {
+    "videoUrl": "https://tiktok-reels.s3.amazonaws.com/videos/1742724723205-output.m3u8",
+    "tsFiles": [
+      "https://tiktok-reels.s3.amazonaws.com/videos/1742724728920-segment_000.ts"
+    ],
+    "thumbnail": "https://tiktok-reels.s3.amazonaws.com/videos/1742724723206-thumbnail.jpg"
+  }
+]

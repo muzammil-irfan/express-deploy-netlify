@@ -1,7 +1,7 @@
 // import ffmpeg from "../../../config/ffmpeg";
 import fs from "fs-extra";
 
-const METADATA_FILE = "uploads/metadata.json";
+const METADATA_FILE = "data/metadata.json";
 
 export const saveMetadata = async (data: any) => {
   try {

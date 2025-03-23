@@ -21,6 +21,7 @@ const api = express();
 //   region: process.env.AWS_REGION,
 // });
 
+
 api.use("/api/", router);
 
 // Export as a Netlify serverless function
