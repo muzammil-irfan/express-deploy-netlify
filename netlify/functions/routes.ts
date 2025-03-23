@@ -8,7 +8,7 @@ import {Metadata, METADATA_FILE} from "./utils/saveMetadata";
 
 const router = Router();
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: "tmp/uploads/" });
 
 // Define routes
 router.get("/status", (req, res) => {
