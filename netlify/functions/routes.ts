@@ -5,6 +5,7 @@ import { uploadToS3, uploadHLSFolder } from "./utils/s3Upload";
 import { saveMetadata } from "./utils/saveMetadata";
 import fs from "fs-extra";
 import {Metadata, METADATA_FILE} from "./utils/saveMetadata";
+import { getMetadata } from "../../config/supabase";
 
 const router = Router();
 
@@ -24,16 +25,27 @@ router.get("/videos", async (req: Request, res: Response) => {
       return;
     }
 
-    const metadata = JSON.parse(await fs.readFile(METADATA_FILE, "utf-8"));
+    const metadata = await getMetadata();
 
-    const s3BaseUrl = `https://${process.env.S3_BUCKET_NAME}.s3.amazonaws.com`;
+    const s3BaseUrl = `https://${process.env.S3_BUCKET_NAME_NETLIFY}.s3.amazonaws.com`;
     const cloudFrontBaseUrl = CLOUDFRONT_URL;
-
-    const updatedMetadata = metadata.map((item: any) => ({
-      videoUrl: item.videoUrl.replace(s3BaseUrl, cloudFrontBaseUrl),
-      thumbnail: item.thumbnail.replace(s3BaseUrl, cloudFrontBaseUrl),
-      tsFiles: item.tsFiles.map((tsUrl: string) => tsUrl.replace(s3BaseUrl, cloudFrontBaseUrl)), // Fixing tsFiles
-    }));
+    console.log(metadata, s3BaseUrl, cloudFrontBaseUrl);
+    const updatedMetadata:Metadata[] = [];
+    // const updatedMetadata = metadata.forEach((item: any) => ({
+    //   videoUrl: item.m3u8Url?.replace(s3BaseUrl, cloudFrontBaseUrl),
+    //   thumbnail: item.thumbnailUrl?.replace(s3BaseUrl, cloudFrontBaseUrl),
+    //   tsFiles: item.segmentUrls?.map((tsUrl: string) => tsUrl.replace(s3BaseUrl, cloudFrontBaseUrl)), // Fixing tsFiles
+    // }));
+    metadata.map(item=>{
+      const obj = {
+        ...item,
+        m3u8url: item.m3u8url?.replace(s3BaseUrl, cloudFrontBaseUrl),
+        thumbnailurl: item.thumbnailurl?.replace(s3BaseUrl, cloudFrontBaseUrl),
+        segmenturls: item.segmenturls?.map((tsUrl: string) => tsUrl.replace(s3BaseUrl, cloudFrontBaseUrl)),
+      }
+      console.log(obj);
+      updatedMetadata.push(obj);
+    })
 
     res.json(updatedMetadata);
   } catch (error) {
@@ -71,9 +83,9 @@ router.post(
         id: Date.now().toString(),
         title: req.file.originalname,
         timestamp: Date.now(),
-        m3u8Url,
-        thumbnailUrl: s3ThumbnailUrl,
-        segmentUrls: tsUrls,
+        m3u8url: m3u8Url,
+        thumbnailurl: s3ThumbnailUrl,
+        segmenturls: tsUrls,
       };
 
       await saveMetadata(metadata);

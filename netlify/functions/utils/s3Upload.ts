@@ -7,9 +7,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_KEY,
-  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_NETLIFY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_NETLIFY,
+  region: process.env.AWS_REGION_NETLIFY,
 });
 
 export const uploadToS3 = async (filePath: string, folder: string, contentType: string): Promise<string> => {
@@ -17,7 +17,7 @@ export const uploadToS3 = async (filePath: string, folder: string, contentType: 
   const fileName = path.basename(filePath);
   
   const params = {
-    Bucket: process.env.S3_BUCKET_NAME!,
+    Bucket: process.env.S3_BUCKET_NAME_NETLIFY!,
     Key: `${folder}/${fileName}`, // Organizing into separate folders
     Body: fileStream,
     ContentType: contentType,

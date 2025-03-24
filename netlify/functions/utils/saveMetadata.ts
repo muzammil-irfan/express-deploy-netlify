@@ -1,5 +1,6 @@
 // import ffmpeg from "../../../config/ffmpeg";
-import fs from "fs-extra";
+// import fs from "fs-extra";
+import supabase from "../../../config/supabase";
 
 export const METADATA_FILE = "data/metadata.json";
 
@@ -8,9 +9,9 @@ export interface Metadata {
   title: string;
   description?: string;
   timestamp: number;
-  m3u8Url: string;
-  thumbnailUrl: string;
-  segmentUrls: string[];
+  m3u8url: string;
+  thumbnailurl: string;
+  segmenturls: string[];
 }
 
 export const saveMetadata = async (data: Metadata) => {
@@ -19,19 +20,15 @@ export const saveMetadata = async (data: Metadata) => {
       throw new Error("Invalid metadata format. Expected an object.");
     }
 
-    let metadata: Metadata[] = [];
+    const { error } = await supabase.from("metadata").insert([data]);
 
-    if (fs.existsSync(METADATA_FILE)) {
-      const fileContent = await fs.readFile(METADATA_FILE, "utf-8");
-      metadata = fileContent ? JSON.parse(fileContent) : [];
+    if (error) {
+      console.error("Error saving metadata:", error);
+      throw error;
     }
 
-    metadata.push(data);
-
-    // Atomic write to prevent corruption
-    await fs.writeFile(`${METADATA_FILE}.tmp`, JSON.stringify(metadata, null, 2));
-    await fs.rename(`${METADATA_FILE}.tmp`, METADATA_FILE);
+    console.log("Metadata saved successfully");
   } catch (error) {
-    console.error("Error saving metadata:", error);
+    console.error("Error:", error);
   }
 };
