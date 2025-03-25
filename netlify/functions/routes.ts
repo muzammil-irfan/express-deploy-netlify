@@ -20,11 +20,6 @@ router.get("/status", (req, res) => {
 
 router.get("/videos", async (req: Request, res: Response) => {
   try {
-    if (!fs.existsSync(METADATA_FILE)) {
-      res.json([]);
-      return;
-    }
-
     const metadata = await getMetadata();
 
     const s3BaseUrl = `https://${process.env.S3_BUCKET_NAME_NETLIFY}.s3.amazonaws.com`;
